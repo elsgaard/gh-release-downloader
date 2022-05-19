@@ -18,7 +18,7 @@ export GHRDVER=1.1.2 && sudo curl -L https://github.com/elsgaard/gh-release-down
 - Windows/Powershell
 
 ```bash
-Invoke-WebRequest -Uri https://github.com/elsgaard/gh-release-downloader/releases/download/v0.0.1/gh-release-downloader_0.0.1_Windows_x86_64.tar.gz -OutFile .\ghdr.tar.gz
+Invoke-WebRequest -Uri https://github.com/elsgaard/gh-release-downloader/releases/download/v0.0.2/gh-release-downloader_0.0.2_Windows_x86_64.tar.gz -OutFile .\ghdr.tar.gz
 ```
 
 ## Usage
