@@ -4,16 +4,14 @@ Go based GitHub release downloader CLI
 
 ## Installation
 
-1. Use binary in release
+- Fedora/CentOS/RedHat
 
-    - Fedora/CentOS/RedHat
-
-      ```bash
-      export GHRDVER=1.1.2 && sudo curl -L https://github.com/elsgaard/gh-release-downloader/releases/download/v$GHRDVER/ghrd -o /usr/local/bin/ghrd \
-        && sudo chmod +x /usr/local/bin/ghrd \
-        && sudo ln -s /usr/local/bin/ghrd /usr/bin/ghrd \
-        && unset GHRDVER
-      ```
+```bash
+export GHRDVER=1.1.2 && sudo curl -L https://github.com/elsgaard/gh-release-downloader/releases/download/v$GHRDVER/ghrd -o /usr/local/bin/ghrd \
+&& sudo chmod +x /usr/local/bin/ghrd \
+&& sudo ln -s /usr/local/bin/ghrd /usr/bin/ghrd \
+&& unset GHRDVER
+```
 
 ## Usage
 
