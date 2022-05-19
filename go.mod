@@ -1,4 +1,4 @@
-module gh-release-downloader
+module ghdr
 
 go 1.18
 
