@@ -1,3 +1,5 @@
+<img src="https://github.com/elsgaard/gh-release-downloader/actions/workflows/main.yml/badge.svg"/> 
+
 # GitHub release downloader
 
 Go based GitHub release downloader CLI
@@ -11,6 +13,12 @@ export GHRDVER=1.1.2 && sudo curl -L https://github.com/elsgaard/gh-release-down
 && sudo chmod +x /usr/local/bin/ghrd \
 && sudo ln -s /usr/local/bin/ghrd /usr/bin/ghrd \
 && unset GHRDVER
+```
+
+- Windows/Powershell
+
+```bash
+Invoke-WebRequest -Uri https://github.com/elsgaard/gh-release-downloader/releases/download/v0.0.1/gh-release-downloader_0.0.1_Windows_x86_64.tar.gz -OutFile .\ghdr.tar.gz
 ```
 
 ## Usage
