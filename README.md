@@ -16,8 +16,6 @@ export GHRDVER=1.1.2 && sudo curl -L https://github.com/elsgaard/gh-release-down
 ## Usage
 
 ```bash
-$ ghrd -h
-<GitHub release downloader>
 Usage ./ghrd
   -a string
         Artifact name (no default)
