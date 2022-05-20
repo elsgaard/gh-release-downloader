@@ -13,10 +13,10 @@ import (
 )
 
 var (
-	repoFlag   = flag.String("repo", "", "Repository like elsgaard/tractor")
-	patFlag    = flag.String("p", "", "Personal access token (no default)")
+	repoFlag   = flag.String("r", "", "Repository like elsgaard/tractor")
+	patFlag    = flag.String("t", "", "Personal access token (no default)")
 	nameFlag   = flag.String("a", "", "Artifact name (no default)")
-	pathFlag   = flag.String("o", "", "path/filename (no default)")
+	pathFlag   = flag.String("o", "", "Out path/filename (no default)")
 	sourceFlag = flag.String("s", "", "Source instead of release artifact: 'zip' or 'tar'(no default)")
 )
 
@@ -46,12 +46,12 @@ func main() {
 		case "zip":
 			err := downloadFile(*pathFlag, gjson.Get(s, "zipball_url").String())
 			if err != nil {
-				return
+				fmt.Println("Unable to download zipball")
 			}
 		case "tar":
 			err := downloadFile(*pathFlag, gjson.Get(s, "tarball_url").String())
 			if err != nil {
-				return
+				fmt.Println("Unable to download tarball")
 			}
 		default:
 			fmt.Println("Invalid source, must be zip or tar")
@@ -69,8 +69,7 @@ func main() {
 
 		if matched {
 			fmt.Printf("Artifact found: %s\n", assetName.String())
-			url := createDownloadUrl(assetID.String())
-			err := downloadFile(*pathFlag, url)
+			err := downloadFile(*pathFlag, "https://api.github.com/repos/"+*repoFlag+"/releases/assets/"+assetID.String()+"")
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -93,7 +92,11 @@ func downloadFile(filepath string, url string) (err error) {
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+*patFlag+"")
-	req.Header.Set("Accept", "application/octet-stream")
+
+	if *sourceFlag == "" {
+		req.Header.Set("Accept", "application/octet-stream")
+	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalln(err)
@@ -113,13 +116,6 @@ func downloadFile(filepath string, url string) (err error) {
 
 	fmt.Printf("Artifact saved: %s with size %d\n", filepath, size)
 	return nil
-}
-
-func createDownloadUrl(id string) string {
-	url := "https://api.github.com/repos/" + *repoFlag + "/releases/assets/" + id + ""
-	fmt.Println(url)
-	return url
-
 }
 
 // getRelease is downloading a list of the GitHub releases i JSON format

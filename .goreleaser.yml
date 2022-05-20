@@ -26,7 +26,7 @@ release:
   # Default is extracted from the origin remote URL or empty if its private hosted.
   github:
     owner: elsgaard
-    name: gh-release-downloader
+    name: ghdr
 checksum:
   name_template: 'checksums.txt'
 snapshot:
