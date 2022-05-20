@@ -13,33 +13,56 @@ import (
 )
 
 var (
-	repoFlag = flag.String("repo", "", "Repository like elsgaard/tractor")
-	relFlag  = flag.String("r", "latest", "A release version (default: 'latest')")
-	patFlag  = flag.String("p", "", "Personal access token (no default)")
-	nameFlag = flag.String("a", "", "Artifact name (no default)")
-	pathFlag = flag.String("o", "", "path/filename (no default)")
+	repoFlag   = flag.String("repo", "", "Repository like elsgaard/tractor")
+	patFlag    = flag.String("p", "", "Personal access token (no default)")
+	nameFlag   = flag.String("a", "", "Artifact name (no default)")
+	pathFlag   = flag.String("o", "", "path/filename (no default)")
+	sourceFlag = flag.String("s", "", "Source instead of release artifact: 'zip' or 'tar'(no default)")
 )
 
 func main() {
 
 	flag.Parse()
 
-	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://api.github.com/repos/"+*repoFlag+"/releases/"+*relFlag+"", nil)
-	req.Header.Set("Authorization", "Bearer "+*patFlag+"")
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	bodyText, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
+	if *nameFlag != "" && *sourceFlag != "" {
+		fmt.Println("Only artifact or source is allowed")
+		return
 	}
 
-	s := string(bodyText)
-	result := gjson.Get(s, "assets")
+	if *pathFlag == "" {
+		fmt.Println("path/Filename is mandatory")
+		return
+	}
 
-	result.ForEach(func(key, value gjson.Result) bool {
+	if *repoFlag == "" {
+		fmt.Println("Github repository is mandatory")
+		return
+	}
+
+	s := getRelease()
+
+	if *sourceFlag != "" {
+		switch *sourceFlag {
+		case "zip":
+			err := downloadFile(*pathFlag, gjson.Get(s, "zipball_url").String())
+			if err != nil {
+				return
+			}
+		case "tar":
+			err := downloadFile(*pathFlag, gjson.Get(s, "tarball_url").String())
+			if err != nil {
+				return
+			}
+		default:
+			fmt.Println("Invalid source, must be zip or tar")
+		}
+		// We are done, exit
+		return
+	}
+
+	// We are looking for an asset
+	assets := gjson.Get(s, "assets")
+	assets.ForEach(func(key, value gjson.Result) bool {
 		assetID := gjson.Get(value.String(), "id")
 		assetName := gjson.Get(value.String(), "name")
 
@@ -47,7 +70,7 @@ func main() {
 		url := createDownloadUrl(assetID.String())
 
 		if matched {
-			err = downloadFile(*pathFlag, url)
+			err := downloadFile(*pathFlag, url)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -67,11 +90,10 @@ func downloadFile(filepath string, url string) (err error) {
 	}
 	defer out.Close()
 
-	// Get the file
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+*patFlag+"")
-	req.Header.Set("Accept", "application/octet-stream")
+	req.Header.Set("Accept", "*/*")
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalln(err)
@@ -96,5 +118,24 @@ func downloadFile(filepath string, url string) (err error) {
 func createDownloadUrl(id string) string {
 	url := "https://api.github.com/repos/" + *repoFlag + "/releases/assets/" + id + ""
 	return url
+
+}
+
+// getRelease is downloading a list of the GitHub releases i JSON format
+func getRelease() string {
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "https://api.github.com/repos/"+*repoFlag+"/releases/latest", nil)
+	req.Header.Set("Authorization", "Bearer "+*patFlag+"")
+	req.Header.Set("Accept", "application/vnd.github.v3+json")
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	bodyText, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return string(bodyText)
 
 }
