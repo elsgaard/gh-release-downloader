@@ -70,6 +70,7 @@ func main() {
 		url := createDownloadUrl(assetID.String())
 
 		if matched {
+			fmt.Printf("Artifact found: %s\n", assetName.String())
 			err := downloadFile(*pathFlag, url)
 			if err != nil {
 				fmt.Println(err)
@@ -111,7 +112,7 @@ func downloadFile(filepath string, url string) (err error) {
 		return err
 	}
 
-	fmt.Printf("Downloaded a file %s with size %d", filepath, size)
+	fmt.Printf("Artifact saved: %s with size %d\n", filepath, size)
 	return nil
 }
 
