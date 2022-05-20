@@ -65,12 +65,11 @@ func main() {
 	assets.ForEach(func(key, value gjson.Result) bool {
 		assetID := gjson.Get(value.String(), "id")
 		assetName := gjson.Get(value.String(), "name")
-
 		matched, _ := regexp.MatchString(*nameFlag, assetName.String())
-		url := createDownloadUrl(assetID.String())
 
 		if matched {
 			fmt.Printf("Artifact found: %s\n", assetName.String())
+			url := createDownloadUrl(assetID.String())
 			err := downloadFile(*pathFlag, url)
 			if err != nil {
 				fmt.Println(err)
@@ -94,7 +93,7 @@ func downloadFile(filepath string, url string) (err error) {
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+*patFlag+"")
-	req.Header.Set("Accept", "*/*")
+	req.Header.Set("Accept", "application/octet-stream")
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalln(err)
@@ -118,6 +117,7 @@ func downloadFile(filepath string, url string) (err error) {
 
 func createDownloadUrl(id string) string {
 	url := "https://api.github.com/repos/" + *repoFlag + "/releases/assets/" + id + ""
+	fmt.Println(url)
 	return url
 
 }
